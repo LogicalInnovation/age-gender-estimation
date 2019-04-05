@@ -1,3 +1,4 @@
+import os.path as P
 from pathlib import Path
 import cv2
 import dlib
@@ -59,7 +60,7 @@ def yield_images():
             if not ret:
                 raise RuntimeError("Failed to capture image")
 
-            yield img
+            yield None, img
 
 
 def yield_images_from_dir(image_dir):
@@ -71,7 +72,7 @@ def yield_images_from_dir(image_dir):
         if img is not None:
             h, w, _ = img.shape
             r = 640 / max(w, h)
-            yield cv2.resize(img, (int(w * r), int(h * r)))
+            yield image_path, cv2.resize(img, (int(w * r), int(h * r)))
 
 
 def main():
@@ -96,7 +97,8 @@ def main():
 
     image_generator = yield_images_from_dir(image_dir) if image_dir else yield_images()
 
-    for img in image_generator:
+    for i, (fn, img) in enumerate(image_generator):
+        print(i, fn)
         input_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_h, img_w, _ = np.shape(input_img)
 
@@ -127,11 +129,12 @@ def main():
                                         "M" if predicted_genders[i][0] < 0.5 else "F")
                 draw_label(img, (d.left(), d.top()), label)
 
-        cv2.imshow("result", img)
-        key = cv2.waitKey(-1) if image_dir else cv2.waitKey(30)
-
-        if key == 27:  # ESC
-            break
+        cv2.imwrite("env/%s--labeled.png" % (P.basename(fn),), img)
+        # cv2.imshow("result", img)
+        # key = cv2.waitKey(-1) if image_dir else cv2.waitKey(30)
+        #
+        # if key == 27:  # ESC
+        #     break
 
 
 if __name__ == '__main__':
