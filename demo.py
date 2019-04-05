@@ -130,7 +130,7 @@ def main():
                                         "M" if predicted_genders[i][0] < 0.5 else "F")
                 draw_label(img, (d.left(), d.top()), label)
 
-        dest = "env/%s--labeled.png" % (P.basename(fn),)
+        dest = "env/%s--labeled.png" % (fn,)
         os.makedirs(P.dirname(dest), exist_ok=True)
         cv2.imwrite(dest, img)
         # cv2.imshow("result", img)
