@@ -1,3 +1,4 @@
+import os
 import os.path as P
 from pathlib import Path
 import cv2
@@ -66,7 +67,7 @@ def yield_images():
 def yield_images_from_dir(image_dir):
     image_dir = Path(image_dir)
 
-    for image_path in image_dir.glob("*.*"):
+    for image_path in list(image_dir.glob("*.*")) + list(image_dir.glob("*/*.*")):
         img = cv2.imread(str(image_path), 1)
 
         if img is not None:
@@ -129,7 +130,9 @@ def main():
                                         "M" if predicted_genders[i][0] < 0.5 else "F")
                 draw_label(img, (d.left(), d.top()), label)
 
-        cv2.imwrite("env/%s--labeled.png" % (P.basename(fn),), img)
+        dest = "env/%s--labeled.png" % (P.basename(fn),)
+        os.makedirs(P.dirname(dest), exist_ok=True)
+        cv2.imwrite(dest, img)
         # cv2.imshow("result", img)
         # key = cv2.waitKey(-1) if image_dir else cv2.waitKey(30)
         #
